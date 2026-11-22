@@ -1,0 +1,58 @@
+{
+  "customer_info": {
+    "customer_name": "Budi Santoso",
+    "company_name": "PT Maju Bersama Sejahtera",
+    "phone_number": "081234567890",
+    "shipping_address": "Jl. Sudirman Kav. 45, Gedung Graha Mandiri Lt. 8, Jakarta Selatan"
+  },
+  "notes": "Pesanan untuk acara Company Gathering akhir tahun. Sudah deal harga nego via WA.",
+  "deadline_requested": "2026-12-05",
+  "items": [
+    {
+      "product_type": "Kaos",
+      "material": "Cotton Combed 24s",
+      "color": "Hitam",
+      "customization_type": "Sablon Plastisol",
+      "customization_notes": "Logo perusahaan di dada kiri (8x8 cm) + tulisan 'Family Gathering 2026' di punggung",
+      "size_breakdown": {
+        "M": 30,
+        "L": 40,
+        "XL": 15
+      }
+    },
+    {
+      "product_type": "Kaos",
+      "material": "Cotton Combed 24s",
+      "color": "Hitam",
+      "customization_type": "Sablon Plastisol",
+      "customization_notes": "Logo dada kiri",
+      "size_breakdown": {
+        "M": 10,
+        "L": 20,
+        "XL": 15
+      }
+    },
+    {
+      "product_type": "Kaos Polo",
+      "material": "Cotton Combed 24s",
+      "color": "Navy",
+      "customization_type": "Bordir Komputer",
+      "customization_notes": "Bordir logo dada kiri + bordir teks kecil di lengan kanan",
+      "size_breakdown": {
+        "M": 10,
+        "L": 15,
+        "XL": 5
+      }
+    },
+    {
+      "product_type": "Topi",
+      "material": "Topi Jaring (Trucker)",
+      "color": "Hitam-Putih",
+      "customization_type": "Bordir Komputer",
+      "customization_notes": "Bordir logo di bagian depan tengah topi",
+      "size_breakdown": {
+        "All Size": 50
+      }
+    }
+  ]
+}

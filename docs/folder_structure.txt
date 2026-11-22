@@ -1,0 +1,43 @@
+oms-AI-service/
+├── app/
+│   ├── __init__.py                  # setiap file __init__.py dibuat agar kita bisa impor suatu file atau function di dalam file tersebut dengan mudah (misal from app.chat_extraction.gemini_service import extract_order_from_chat)       
+│   ├── main.py                      # Entrypoint FastAPI (lifespan, CORS, /health, mount api_router)
+│   │
+│   ├── core/                        # Konfigurasi & utilitas bersama
+│   │   ├── __init__.py
+│   │   ├── config.py                # Load & validasi environment variables (.env)
+│   │   └── logging.py               # (Opsional) Konfigurasi logging terpusat
+│   │
+│   ├── api/                         # Routing & API Versioning
+│   │   ├── __init__.py
+│   │   └── v1/
+│   │       ├── __init__.py
+│   │       └── router.py            # Menggabungkan semua router fitur (chat_extraction + production_prediction)
+│   │
+│   ├── chat_extraction/             # [Task: LLM] Ekstraksi chat WhatsApp ke JSON
+│   │   ├── __init__.py
+│   │   ├── router.py                # Endpoint HTTP (/api/v1/extract-orders)
+│   │   ├── schemas.py               # Pydantic request & response schemas
+│   │   └── gemini_service.py        # Integrasi Gemini API, prompt, & fallback logic
+│   │
+│   └── production_prediction/       # [Task: Naqib - ML] Prediksi waktu produksi pesanan
+│       ├── __init__.py
+│       ├── router.py                # Endpoint HTTP (/api/v1/predict-production)
+│       ├── schemas.py               # Pydantic input features & output prediksi
+│       ├── service.py               # Preprocessing input & logika inference
+│       └── model_loader.py          # Load artifact model ML (.joblib/.pkl) saat startup
+│
+├── models/                          # Menyimpan file model ML terlatih (.joblib / .pkl)
+├── notebooks/                       # (Opsional) Script/notebook EDA & training model ML
+├── tests/                           # Unit & integration tests (pytest)
+│   ├── test_chat_extraction.py
+│   └── test_prediction.py
+├── docs/                            # Dokumentasi & referensi skema
+│   ├── folder_structure.txt         # File ini
+│   └── skema_ekstraksi_chat.JSON
+│
+├── .env                             # Environment variables lokal (JANGAN di-commit)
+├── .env.example                     # Template environment variables untuk tim
+├── .gitignore
+├── requirements.txt                 # Daftar dependency Python (di root)
+└── Dockerfile                       # Konfigurasi container untuk deployment
