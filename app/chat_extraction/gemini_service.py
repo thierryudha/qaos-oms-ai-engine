@@ -13,6 +13,7 @@ logger = logging.getLogger('oms_ai_service.gemini')
 
 PRIMARY_MODEL = settings.GEMINI_PRIMARY_MODEL
 FALLBACK_MODEL = settings.GEMINI_FALLBACK_MODEL
+FALLBACK_MODEL_2 = settings.GEMINI_FALLBACK_MODEL_2
 
 client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
@@ -70,25 +71,26 @@ def _invoke_gemini(model_name: str, raw_chat:str) -> Dict[str, Any]:
     return _sanitize_size_breakdown(parsed_data)
 
 def extract_order_from_chat(raw_chat: str) -> Tuple[Dict[str, Any], str]:
-    """
-    Mengekstrak teks pesanan menggunakan model utama dengan automatic fallback
-    ke seri Gemini 3.5 Flash-Lite apabila terkena rate limit (429) atau gangguan sementara (503).
-    Mengembalikan tuple: (hasil_json_dict, nama_model_yang_digunakan).
-    """
-    try: 
-        logger.info('Mengekstrak chat menggunakan model utama: %s', PRIMARY_MODEL)
-        result = _invoke_gemini(PRIMARY_MODEL, raw_chat)
-        return result, PRIMARY_MODEL
-    except APIError as err:
-        if err.code in (429, 503) and FALLBACK_MODEL != PRIMARY_MODEL:
-            logger.warning(
-                "Model utama %s terkena status %s (%s). Melakukan fallback ke %s...",
-                PRIMARY_MODEL,
-                err.code,
-                err.message,
-                FALLBACK_MODEL
-            )
-            result = _invoke_gemini(FALLBACK_MODEL, raw_chat)
-            return result, FALLBACK_MODEL
-        raise
+    models_to_try = []
+    for m in (PRIMARY_MODEL, FALLBACK_MODEL, FALLBACK_MODEL_2):
+        if m and m not in models_to_try:
+            models_to_try.append(m)
+
+    for idx, model_name in enumerate(models_to_try):
+        try:
+            logger.info("Mengekstrak chat menggunakan model: %s", model_name)
+            result = _invoke_gemini(model_name, raw_chat)
+            return result, model_name
+        except APIError as err:
+            is_last_model = idx == len(models_to_try) - 1
+            if err.code in (429, 503) and not is_last_model:
+                logger.warning(
+                    "Model %s terkena status %s (%s). Melakukan fallback ke %s...",
+                    model_name,
+                    err.code,
+                    err.message,
+                    models_to_try[idx + 1],
+                )
+                continue
+            raise
 

@@ -18,6 +18,7 @@ router = APIRouter()
         400: {"model": ErrorResponse, "description": "Input teks kosong atau terlalu pendek"},
         422: {"model": ErrorResponse, "description": "Tidak ditemukan rincian produk pesanan dalam teks"},
         429: {"model": ErrorResponse, "description": "Kuota API LLM terlampaui (rate limit)"},
+        500: {"model": ErrorResponse, "description": "Terjadi kesalahan internal pada server AI"},
         502: {"model": ErrorResponse, "description": "Gangguan komunikasi dengan layanan LLM eksternal"},
     }    
 )

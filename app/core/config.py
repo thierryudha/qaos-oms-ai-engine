@@ -7,6 +7,7 @@ class Settings(BaseSettings):
 
     GEMINI_PRIMARY_MODEL: str = "gemini-3.8-flash"
     GEMINI_FALLBACK_MODEL: str = "gemini-3.5-flash-lite"
+    GEMINI_FALLBACK_MODEL_2: str = "gemini-3.1-flash-lite"
     ALLOWED_ORIGINS: str = "*"
 
     model_config = SettingsConfigDict(
