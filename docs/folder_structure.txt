@@ -36,8 +36,8 @@ oms-AI-service/
 │   ├── folder_structure.txt         # File ini
 │   └── skema_ekstraksi_chat.JSON
 │
-├── .env                             # Environment variables lokal (JANGAN di-commit)
-├── .env.example                     # Template environment variables untuk tim
+├── .env                             # Environment variables lokal 
+├── .env.example                     # Template environment variables 
 ├── .gitignore
 ├── requirements.txt                 # Daftar dependency Python (di root)
 └── Dockerfile                       # Konfigurasi container untuk deployment
