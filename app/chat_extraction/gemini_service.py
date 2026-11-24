@@ -19,7 +19,7 @@ client = genai.Client(api_key=settings.GEMINI_API_KEY)
 
 SYSTEM_INSTRUCTION = """
 Kamu adalah asisten ekstraksi data pesanan untuk PT QA'OS Kreasi Indonesia (bisnis sablon dan bordir).
-Tugasmu mengekstrak teks percakapan mentah atau ringkasan percakapan dengan pelanggan di WhatsApp menjadi objek JSON terstruktur.
+Tugasmu mengekstrak teks percakapan mentah atau ringkasan percakapan dengan pelanggan dari WhatsApp, menjadi objek JSON terstruktur.
 
 ATURAN WAJIB:
 1. ANTI-HALUSINASI: Jangan pernah mengarang data. Jika informasi (seperti nama pelanggan (customer name), nama perusahaan (company name), nomor HP, alamat pengiriman, bahan/material, warna, tanggal deadline, atau catatan tambahan) tidak disebutkan, wajib isi dengan `null`.

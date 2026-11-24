@@ -10,7 +10,18 @@ class ChatExtractRequest(BaseModel):
         min_length=10, # Minimal 10 Karakter, supaya teks asal kayak "tes" tidak terkirim
         description='Raw copy-paste atau ringkasan percakapan dengan pelanggan di WhatsApp',
         examples=[ # contoh buat tes di Swagger UI 
-            "Customer: siang min mau nanya klo bikin kaos lengan pendek warna navy trus sablon logo PT di depan kena brp ya? Admin: Halo kak, untuk kaos short sleeve dan sablon depan kita ada di ukuran A4 kak kena di 60 ribu per pcs kak Customer: bahannya apa ya min? Admin: untuk bahan kita menggunakan cotton combed 30s atau cotton combed 24s kak Customer: oke deh min mau pesen 130 pcs yang combed 30s yang ukuran M 30 pcs untuk ukuran L 50 pcs dan XL 20 pcs Admin: Siap kak, ada tambahan lain? Customer: Sama sekalian topi item deh min kena berapa per pcs nya? Admin: untuk topi kita ada di 30 ribu per pcs kak Customer: oke sekalian pesen juga berarti 100 pcs ya min Admin: baik kak, atas nama siapa dan dikirim ke mana ya kak? Customer: atas nama Yudha PT Indokoin Semesta 081219164263 kirim ke Sequis Tower, Jl. Jenderal Sudirman No. Kav. 71 (Lantai 7 / Lantai 25), RT.5/RW.3, Senayan, Kec. Kebayoran Baru, Kota Jakarta Selatan, DKI Jakarta 12190"
+            """Customer: siang min mau nanya klo bikin kaos lengan pendek warna navy trus sablon logo PT di depan kena brp ya? 
+            Admin: Halo kak, untuk kaos short sleeve dan sablon depan kita bisa di dada tengah, kanan atau kiri kak, 
+            dan untuk di tengah kita terdapat ukuran 28x10cm jadi memanjang, lalu ukuran A4, dan A3. Customer: bahannya apa ya min? 
+            Admin: untuk bahan kita menggunakan cotton combed 30s atau cotton combed 24s kak Customer: oke deh min mau pesen di dada 
+            tengah yang memanjang 100 pcs yang combed 30s. terus ukuran M 30 pcs untuk ukuran L 50 pcs dan XL 20 pcs Admin: Siap kak, 
+            ada tambahan lain? Customer: Sama sekalian topi item deh min bahannya pake apa ya dan kena berapa per pcs nya? 
+            Admin: untuk topi kita pake bahan topi baseball kak dan ada di 30 ribu per pcs kak Customer: oke sekalian pesen juga berarti 100 pcs ya min 
+            Admin: baik kak, atas nama siapa dan dikirim ke mana ya kak? 
+            Customer: atas nama Yudha PT Indokoin Semesta 081213141516 kirim ke Sequis Tower, Jl. Jenderal Sudirman 
+            No. Kav. 71 (Lantai 7 / Lantai 25), RT.5/RW.3, Senayan, Kec. Kebayoran Baru, Kota Jakarta Selatan, DKI Jakarta 12190 
+            sama sebelum tanggal 26 udah jadi bisa ya min? Admin: tanggal 27 kemungkinan besar baru selesai semua sih kak 
+            Customer: ya udah deh min"""
         ] 
     )
 
@@ -22,7 +33,7 @@ class CustomerInfo(BaseModel):
         default=None, description='Nama Perusahaan/instansi/komunitas pelanggan, null jika tidak disebutkan'
     )
     phone_number: Optional[str] = Field(
-        default=None, description='Nomor Telepon Pelanggan, null jika tidak disebutkan'
+        default=None, description='Nomor Telepon Pelanggan, biasanya dimulai dari angka `08` atau `+628`, lalu null jika tidak disebutkan'
     )
     shipping_address: Optional[str] = Field(
         default=None, description='Alamat pengiriman lengkap, null jika tidak disebutkan'
@@ -31,7 +42,7 @@ class CustomerInfo(BaseModel):
 class SizeItem(BaseModel):
     size: str = Field(
         ...,
-        description="Ukuran produk yang tersedia yaitu 'XS', 'S', 'M', 'L', 'XL', 'XXL' 'XXXL', 'XXXXL', 'XXXXXL' dan ukuran 'All Size' untuk produk Topi dan Tote Bag"
+        description="Ukuran produk yang tersedia yaitu `XS`, `S`, `M`, `L`, `XL`, `XXL`, `XXXL`, `XXXXL`, `XXXXXL` dan ukuran `All Size` untuk produk `Topi` dan `Tote Bag`"
     )
     quantity: int = Field(
         ...,
@@ -40,19 +51,19 @@ class SizeItem(BaseModel):
 
 class OrderItem(BaseModel):
     product_type: str = Field(
-        ..., description="""Jenis Produk yang tersedia yaitu: Kaos dan Kaos Polo dengan varian Short Sleeve & Long Sleeve, 
-                            jadi tulis secara detail, jika disebutkan variannya Short Sleeve atau Long Sleeve. Misal:
-                            'Kaos (Short Sleeve)' atau 'Kaos Polo (Long Sleeve)'. Selain itu juga terdapat produk Topi dan Tote Bag"""
+        ..., description="""Jenis Produk yang tersedia yaitu: `Kaos` dan `Kaos Polo` dengan varian `Short Sleeve` (lengan pendek) & `Long Sleeve` (lengan panjang), 
+                            jadi jika disebutkan variannya `Short Sleeve` (lengan pendek) atau `Long Sleeve` (lengan panjang) maka isi dengan detail. Misal:
+                            `Kaos (Short Sleeve)` untuk kaos lengan pendek atau `Kaos Polo (Long Sleeve)` untuk kaos lengan panjang. Selain itu juga terdapat produk `Topi` dan `Tote Bag`"""
     )
     material: Optional[str] = Field(
-        default=None, description="""Jenis bahan yang tersedia yaitu: untuk Kaos (Short Sleeve) menggunakan bahan Cotton Combed 24s, 
-                                    tersedia juga untuk Kaos (Short Sleeve & Long Sleeve) dengan bahan Cotton Combed 30s.
-                                    Lalu untuk Kaos Polo (Short Sleeve & Long Sleeve) terdapat varian bahan Polyester atau Lacoste Cotton Pique.
-                                    Lalu untuk Topi, isi bahan/material dengan 'Bahan Topi Baseball' dan untuk produk Tote Bag menggunakan bahan Kanvas"""
+        default=None, description="""Jenis bahan yang tersedia yaitu: untuk `Kaos (Short Sleeve)` menggunakan bahan `Cotton Combed 24s`, 
+                                    tersedia juga untuk `Kaos (Short Sleeve & Long Sleeve)` dengan bahan `Cotton Combed 30s`.
+                                    Lalu untuk `Kaos Polo (Short Sleeve & Long Sleeve)` terdapat varian bahan `Polyester` atau `Lacoste Cotton Pique`.
+                                    Lalu untuk `Topi`, isi bahan/material dengan `Bahan Topi Baseball` dan untuk produk `Tote Bag` menggunakan bahan `Kanvas`"""
     )
     color: Optional[str] = Field(
-        default=None, description="""
-        Warna yang tersedia yaitu:
+        default=None, 
+        description="""Warna yang tersedia yaitu:
         Abu Tua
         Merah Maron
         Putih Bersih
@@ -89,30 +100,29 @@ class OrderItem(BaseModel):
         Forest Green
         Light Gray
         Hijau Fuji
-        Jika warna yang disebutkan pelanggan mirip dengan salah satu warna-warna tersebut, maka pilihlah dari list warna tersebut yang mendekati 
+        Jika warna yang disepakati di percakapan mirip dengan salah satu warna-warna tersebut, maka pilihlah dari list warna tersebut yang mendekati 
         """
     )
     customization_type: Optional[str] = Field(
-        default=None, description="Jenis kustomisasi yang tersedia: Sablon dan Bordir"
+        default=None, description="Jenis kustomisasi yang tersedia untuk semua tipe produk: `Sablon` dan `Bordir`, kecuali tipe produk `Tote Bag` hanya tersedia kustomisasi `Sablon`"
     )
     customization_notes: Optional[str] = Field(
-        default=None, description="""
-        Detail posisi sablon: 
-        1. jika pelanggan menyebutkan posisi di depan (spesifik dada kiri), maka isi key `customization_notes` dengan label `A1`
-        2. jika pelanggan menyebutkan posisi di depan (spesifik dada kiri) dan dengan ukuran A4 di belakang (punggung), maka isi key `customization_notes` dengan label `A2`
-        3. jika pelanggan menyebutkan posisi di depan (spesifik dada kiri) dan dengan ukuran A3 di belakang (punggung), maka isi key `customization_notes` dengan label `A3`
-        4. jika pelanggan menyebutkan posisi di depan saja/dada (bukan spesifik di dada kiri) dengan ukuran 28x10 cm, maka isi key `customization_notes` dengan label `A4`
-        5. jika pelanggan menyebutkan posisi di depan saja/dada (bukan spesifik di dada kiri) dengan ukuran A4, maka isi key `customization_notes` dengan label `A5`
-        6. jika pelanggan menyebutkan posisi di depan saja/dada (bukan spesifik di dada kiri) dengan ukuran A3, maka isi key `customization_notes` dengan label `A6`
-        7. jika pelanggan menyebutkan posisi di depan/dada (bukan spesifik di dada kiri) dan belakang (punggung) dengan ukuran A4, maka isi key `customization_notes` dengan label `A7`
-        8. jika pelanggan menyebutkan posisi di depan/dada (bukan spesifik di dada kiri) dengan ukuran A4 dan belakang (punggung) dengan ukuran A3, maka isi key `customization_notes` dengan label `A8`
-        9. jika pelanggan menyebutkan posisi di depan/dada (bukan spesifik di dada kiri) dan belakang (punggung) dengan ukuran A3, maka isi key `customization_notes` dengan label `A9`
-        Jika jenis kustomisasi tidak disebutkan atau selain posisi yang disebutkan tadi, maka isi dengan null
+        default=None, description="""Detail posisi Sablon atau Bordir: 
+        1. jika posisi Sablon atau Bordir yang disebutkan/disepakati di percakapan adalah di depan (spesifik dada kiri/kanan) saja, maka isi key `customization_notes` dengan label `A1`
+        2. jika posisi Sablon atau Bordir yang disebutkan/disepakati di percakapan adalah di depan (spesifik dada kiri/kanan) dan dengan ukuran A4 di belakang (punggung), maka isi key `customization_notes` dengan label `A2`
+        3. jika posisi Sablon atau Bordir yang disebutkan/disepakati di percakapan adalah di depan (spesifik dada kiri/kanan) dan dengan ukuran A3 di belakang (punggung), maka isi key `customization_notes` dengan label `A3`
+        4. jika posisi Sablon atau Bordir yang disebutkan/disepakati di percakapan adalah di depan saja (tanpa Sablon atau Bordir belakang), yaitu di dada tengah dan dengan ukuran 28x10 cm (persis di tengah dada dan memanjang seperti persegi panjang), maka isi key `customization_notes` dengan label `A4`
+        5. jika posisi Sablon atau Bordir yang disebutkan/disepakati di percakapan adalah di depan saja (tanpa Sablon atau Bordir belakang), yaitu di dada tengah dan dengan ukuran A4, maka isi key `customization_notes` dengan label `A5`
+        6. jika posisi Sablon atau Bordir yang disebutkan/disepakati di percakapan adalah di depan saja (tanpa Sablon atau Bordir belakang), yaitu di dada tengah dan dengan ukuran A3, maka isi key `customization_notes` dengan label `A6`
+        7. jika posisi Sablon atau Bordir yang disebutkan/disepakati di percakapan adalah di depan yaitu di dada tengah dan belakang (punggung) dengan ukuran A4, maka isi key `customization_notes` dengan label `A7`
+        8. jika posisi Sablon atau Bordir yang disebutkan/disepakati di percakapan adalah di depan yaitu di dada tengah dengan ukuran A4 dan belakang (punggung) dengan ukuran A3, maka isi key `customization_notes` dengan label `A8`
+        9. jika posisi Sablon atau Bordir yang disebutkan/disepakati di percakapan adalah di depan yaitu di dada tengah dan belakang (punggung) dengan ukuran A3, maka isi key `customization_notes` dengan label `A9`
+        Jika jenis kustomisasi tidak disebutkan atau selain 9 kondisi posisi tadi, maka isi dengan null, jangan mengarang
         """
     )
     size_breakdown: List[SizeItem] = Field(
         ...,
-        description="Daftar rincian jumlah per ukuran yang dipesan (gunakan size 'All Size' hanya untuk produk Topi dan Tote Bag)",
+        description="Daftar rincian jumlah per ukuran yang dipesan (gunakan size `All Size` hanya untuk produk `Topi` dan `Tote Bag`)",
     )
 
 # class blueprint supaya response Gemini persis seperti di class ini
@@ -123,17 +133,17 @@ class ChatExtractResponse(BaseModel):
                 "customer_info": {
                     "customer_name": "Verdy",
                     "company_name": "PT Anugra Utama Makmur",
-                    "phone_number": "081234567890",
+                    "phone_number": "083435383994",
                     "shipping_address": "JALAN PANGERAN JAYAKARTA KOMPLEK 123 NO. 10, RW. 07 RT. 006 Kec. SAWAH BESAR JAKARTA PUSAT - 10730",
                 },
-                "deadline_requested": None,
+                "deadline_requested": "2026-11-24",
                 "items": [
                     {
                         "product_type": "Kaos Polo (Short Sleeve)",
                         "material": "Cotton Combed 30s",
-                        "color": "Hitam Solid",
+                        "color": "Navy Tua",
                         "customization_type": "Bordir",
-                        "customization_notes": "A3",
+                        "customization_notes": "A2",
                         "size_breakdown": [
                             {"size": "M", "quantity": 30},
                             {"size": "L", "quantity": 50},
@@ -144,7 +154,7 @@ class ChatExtractResponse(BaseModel):
                         "product_type": "Topi",
                         "material": "Bahan Topi Baseball",
                         "color": "Hitam Solid",
-                        "customization_type": None,
+                        "customization_type": "Bordir",
                         "customization_notes": None,
                         "size_breakdown": [
                             {"size": "All Size", "quantity": 100}
@@ -158,7 +168,10 @@ class ChatExtractResponse(BaseModel):
 
     customer_info: CustomerInfo
     deadline_requested: Optional[str] = Field(
-        default=None, description="Target tanggal selesai harus anda konversi ke dalam format YYYY-MM-DD jika disebutkan, atau null jika tidak disebutkan"
+        default=None, description="""Target tanggal selesai harus anda konversi ke dalam format `YYYY-MM-DD` 
+        jika disebutkan atau isi dengan null jika tidak disebutkan. Jika yang disebutkan/disepakati di percakapan hanya tanggal saja misal seperti
+        `sebelum tanggal 27 bisa ga ya pak?` maka ambil bulan pada current month dan tahun pada current year dan konversi
+        ke dalam format `YYYY-MM-DD`, tetapi sambil lihat juga apakah penjual menyanggupi/menyepakati tanggal tersebut atau tidak, jadi lihatlah tanggal kesepakatan akhir kedua belah pihak"""
     )
     items: List[OrderItem]
     notes: Optional[str] = Field(

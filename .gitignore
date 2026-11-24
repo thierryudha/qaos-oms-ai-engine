@@ -2,4 +2,4 @@
 .env
 __pycache__/
 .codegraph/
-docs/.JSON
+docs/contoh_format_ekstraksi_chat.json
