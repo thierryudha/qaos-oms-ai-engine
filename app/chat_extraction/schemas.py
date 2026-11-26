@@ -169,13 +169,8 @@ class ChatExtractResponse(BaseModel):
     customer_info: CustomerInfo
     deadline_requested: Optional[str] = Field(
         default=None, 
-        description="""Jika tanggal yang disebutkan/disepakati di percakapan hanya tanggal saja misal seperti
-        'Customer:`sebelum tanggal 27 bisa ga ya pak?` atau `tanggal 27 udah jadi bisa min?`' dan admin menjawab: 'di tanggal 29 kemungkinan baru bisa kak'
-        dan Customer juga setuju seperti menjawab 'oke deh min', maka ambil tanggal yang disepakati tersebut, yaitu di tanggal 29 kalau berdasarkan 
-        di contoh tersebut dan ditambah dengan bulan pada current month dan tahun pada current year dan konversi ke dalam format `YYYY-MM-DD`, 
-        tetapi sambil lihat juga apakah penjual menyanggupi/menyepakati tanggal tersebut atau tidak, 
-        jadi lihatlah tanggal kesepakatan akhir kedua belah pihak. Selain itu, isi dengan null jika di percakapan tidak
-        dibahas sama sekali mengenai permintaan tanggal deadline pesanan"""
+        description="""Target tanggal selesai pesanan hasil kesepakatan akhir kedua belah pihak dalam format `YYYY-MM-DD`
+                    dihitung berdasarkan konteks waktu saat ini pada system instruction. isi dengan null jika tidak disebutkan."""
     )
     items: List[OrderItem]
     notes: Optional[str] = Field(

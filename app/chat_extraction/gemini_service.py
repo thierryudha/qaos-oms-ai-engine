@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import json
 import logging
 import time
+from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, List, Tuple
 
 import httpx2 # HTTP Client-nya Python
@@ -46,23 +47,42 @@ def _get_model_candidates() -> List[ModelCandidate]:
 
     return candidates
 
-SYSTEM_INSTRUCTION = """
-Kamu adalah asisten ekstraksi data pesanan untuk PT QA'OS Kreasi Indonesia (bisnis sablon dan bordir).
-Tugasmu mengekstrak teks percakapan mentah atau ringkasan percakapan dengan pelanggan dari WhatsApp, menjadi objek JSON terstruktur.
+WIB = timezone(timedelta(hours=7))
 
-ATURAN WAJIB:
-1. ANTI-HALUSINASI: Jangan pernah mengarang data. Jika informasi (seperti nama pelanggan (customer name), nama perusahaan (company name), nomor HP, alamat pengiriman, bahan/material, warna, tanggal deadline, atau catatan tambahan) tidak disebutkan, wajib isi dengan `null`.
-2. Buat objek terpisah di dalam `items` untuk setiap kombinasi unik dari 5 atribut berikut:
-   - `product_type`
-   - `material`
-   - `color`
-   - `customization_type`
-   - `customization_notes`
-   Jika salah satu saja dari kelima atribut tersebut berbeda (misal produk dan warna sama, tetapi desain/posisi sablonnya berbeda), wajib dipisah menjadi objek key items baru.
-3. ATURAN UKURAN (`size_breakdown`):
-Hanya cantumkan ukuran yang benar-benar dipesan dengan `quantity` > 0.
-4. Apabila teks input sama sekali tidak memuat rincian pemesanan produk, kembalikan array `items` kosong `[]`.
-""".strip()
+HARI_ID = ("Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu")
+
+def _build_system_instruction() -> str:
+    now_wib = datetime.now(WIB)
+    day_name = HARI_ID[now_wib.weekday()]
+    current_date_str = now_wib.strftime("%Y-%m-%d")
+
+    return f"""system instruction: kamu adalah asisten ekstraksi data pesanan untuk PT QA'OS Kreasi Indonesia (bisnis sablon dan bordir).
+            tugasmu mengekstrak teks percakapan mentah atau ringkasan percakapan dengan pelanggan dari WhatsApp, 
+            menjadi objek JSON terstruktur. 
+
+            konteks waktu saat ini:
+            - hari & tanggal saat ini (WIB): {day_name}
+            - tahun saat ini: {now_wib.year}
+            - bulan saat ini: {now_wib.strftime("%m")}
+            
+            aturan wajib:
+            1. jangan halusinasi: jangan pernah mengarang data. jika informasi (seperti nama pelanggan (customer name), 
+            nama perusahaan (company name), nomor HP, alamat pengiriman, bahan/material, warna, tanggal deadline, atau catatan tambahan) tidak disebutkan, wajib isi dengan `null`.
+            2. aturan tanggal (`deadline_requested`):
+            - wajib gunakan konteks waktu saat ini ({current_date_str}) sebagai acuan. jangan pernah menggunakan tahun/bulan lain di luar konteks waktu ini kecuali disebutkan eksplisit di percakapan.
+            - jika hanya disebutkan tanggalnya saja (misal "tanggal 30" atau "tanggal 30 bisa udah jadi ya min"),
+            aturannya: jika tanggal tersebut >= tanggal hari ini ({now_wib.day}), gunakan bulan dan tahun saat ini. jika tanggal tersebut < tanggal hrai ini ({now_wib.day}), gunakan bulan berikutnya (dan tambah tahun jika melewati Desember). jika disebutkan relatif (misal "besok", "lusa", "minggu depan"), hitung dari {current_date_str}. selalu ambil tanggal kesepakatan akhir antara pelanggan dan penjual/admin
+            3. buat objek terpisah di dalam `items` untuk setiap kombinasi unik dari 5 atribut berikut:
+            - `product_type`
+            - `material`
+            - `color`
+            - `customization_type`
+            - `customization_notes`
+            jika salah satu saja dari kelima atribut tersebut berbeda (misal tipe produk sama tetapi warna berbeda, material/bahan berbeda, atau posisi bordir/sablonnya berbeda), wajib dipisah menjadi objek key `items` baru.
+            4. aturan ukuran (`size_breakdown`): hanya cantumkan ukuran yang benar-benar dipesan dengan `quantity` > 0.
+            5. apabila teks input sama sekali tidak memuat rincian pemesanan produk, kembalikan array `items` dengan array kosong `[]`.
+            """.strip()
+
 
 def _sanitize_size_breakdown(data: Dict[str, Any]) -> Dict[str, Any]:
     """
@@ -89,7 +109,7 @@ def _invoke_gemini(model_name: str, raw_chat: str, timeout_ms: int) -> Dict[str,
         model=model_name, 
         contents=f'Ekstrak informasi pesanan dari percakapan berikut:\n\n{raw_chat}',
         config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_INSTRUCTION,
+            system_instruction=_build_system_instruction(),
             response_mime_type='application/json',
             response_schema=ChatExtractResponse,
             temperature=0.1,
@@ -165,7 +185,7 @@ def extract_order_from_chat(raw_chat: str) -> Tuple[Dict[str, Any], str]:
             if err.code in TRANSIENT_API_STATUS_CODES and not is_last_model:
                 next_candidate = candidates[idx + 1]
                 logger.warning(
-                    "Model %s gagal dengan status %s setelah %.0fms, dengan Message: %s. Fallback ke model %s...",
+                    "Model %s gagal dengan status %s setelah %.0fms, dengan message: '%s' Fallback ke model %s...",
                     candidate.name,
                     err.code,
                     elapsed_ms,
