@@ -9,7 +9,7 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(name)s | %(message)s",
 )
-logger = logging.getLogger("oms_ai_service.api")
+logger = logging.getLogger("qaos_oms_ai_engine.api")
 
 app = FastAPI(
     title="OMS AI Service API - PT QA'OS Kreasi Indonesia",

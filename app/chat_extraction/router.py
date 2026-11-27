@@ -2,29 +2,31 @@ import logging
 from fastapi import APIRouter, HTTPException, Response, status
 from google.genai.errors import APIError
 
-from app.chat_extraction.gemini_service import extract_order_from_chat
+from app.chat_extraction.gemini_service import LLMTimeoutError, extract_order_from_chat
 from app.chat_extraction.schemas import ChatExtractRequest, ChatExtractResponse, ErrorResponse
 
-logger = logging.getLogger("oms_ai_service.chat_extraction")
+logger = logging.getLogger("qaos_oms_ai_engine.chat_extraction")
 router = APIRouter()
 
 @router.post(
     "/extract-orders",
-    response_model=ChatExtractResponse,
+    response_model=ChatExtractResponse, # Format Reponse
     status_code=status.HTTP_200_OK,
     tags=["Order Extraction"],
     summary="Ekstrak Teks Percakapan WhatsApp ke JSON",
+    # list status kode error untuk dokumentasi Swagger/OpenAPI
     responses={
         400: {"model": ErrorResponse, "description": "Input teks kosong atau terlalu pendek"},
         422: {"model": ErrorResponse, "description": "Tidak ditemukan rincian produk pesanan dalam teks"},
         429: {"model": ErrorResponse, "description": "Kuota API LLM terlampaui (rate limit)"},
         500: {"model": ErrorResponse, "description": "Terjadi kesalahan internal pada server AI"},
         502: {"model": ErrorResponse, "description": "Gangguan komunikasi dengan layanan LLM eksternal"},
+        504: {"model": ErrorResponse, "description": "Seluruh model LLM melebihi batas waktu respons (timeout)"}
     }    
 )
 def extract_order_endpoint(payload: ChatExtractRequest, response: Response):
     cleaned_chat = payload.raw_chat.strip()
-    if len(cleaned_chat) < 10:
+    if len(cleaned_chat) < 20:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Teks percakapan terlalu pendek atau kosong. Silahkan masukkan ringkasan percakapan.",
@@ -45,8 +47,21 @@ def extract_order_endpoint(payload: ChatExtractRequest, response: Response):
     
     except HTTPException:
         raise 
+    except LLMTimeoutError as timeout_err:
+        logger.error(
+            "LLM Timeout Error: %s",
+            timeout_err
+        )
+        raise HTTPException(
+            status_code=status.HTTP_504_GATEWAY_TIMEOUT,
+            detail="Layanan AI membutuhkan waktu terlalu lama untuk merespons. Silahkan coba lagi atau isi form pesanan secara manual."
+        )    
     except APIError as api_err:
-        logger.error("Gemini API Error [%s]: %s", api_err.code, api_err.message)
+        logger.error(
+            "Gemini API Error [%s]: %s", 
+            api_err.code, 
+            api_err.message,
+        )
         if api_err.code == 429:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
@@ -57,7 +72,10 @@ def extract_order_endpoint(payload: ChatExtractRequest, response: Response):
             detail="Layanan AI sedang mengalami gangguan sementara.",
         )
     except Exception as exc:
-        logger.exception("Unexpected error saat ekstraksi chat: %s", exc)
+        logger.exception(
+            "Unexpected error saat ekstraksi chat: %s", 
+            exc
+        )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Terjadi kesalahan internal pada server AI."
