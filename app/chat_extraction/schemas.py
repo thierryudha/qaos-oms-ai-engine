@@ -20,7 +20,7 @@ class ChatExtractRequest(BaseModel):
             Admin: baik kak, atas nama siapa dan dikirim ke mana ya kak? 
             Customer: atas nama Yudha PT Indokoin Semesta 081213141516 kirim ke Sequis Tower, Jl. Jenderal Sudirman 
             No. Kav. 71 (Lantai 7 / Lantai 25), RT.5/RW.3, Senayan, Kec. Kebayoran Baru, Kota Jakarta Selatan, DKI Jakarta 12190 
-            sama sebelum tanggal 26 udah jadi bisa ya min? Admin: tanggal 27 kemungkinan besar baru selesai semua sih kak 
+            sama sebelum tanggal 1 udah jadi bisa ya min? Admin: mengingat pesanannya cukup banyak kemungkinan tanggal 2 baru selesai kak gimana? 
             Customer: ya udah deh min"""
         ] 
     )
@@ -51,16 +51,24 @@ class SizeItem(BaseModel):
 
 class OrderItem(BaseModel):
     product_type: str = Field(
-        ..., description="""Jenis Produk yang tersedia yaitu: `Kaos` dan `Kaos Polo` dengan varian `Short Sleeve` (lengan pendek) & `Long Sleeve` (lengan panjang), 
-                            jadi jika disebutkan variannya `Short Sleeve` (lengan pendek) atau `Long Sleeve` (lengan panjang) maka isi dengan detail. Misal:
-                            `Kaos (Short Sleeve)` untuk kaos lengan pendek atau `Kaos Polo (Long Sleeve)` untuk kaos lengan panjang. Selain itu juga terdapat produk `Topi` dan `Tote Bag`"""
+        ..., description="""Jenis Produk yang tersedia yaitu: `Kaos`, `Kaos Polo`, `Topi` dan `Tote Bag`"""
     )
+
+    sleeve_type: Optional[str] = Field(
+        default=None, 
+        description="""Tipe panjang lengan pada tipe produk `Kaos` dan `Kaos Polo`. 
+        jika permintaan pelanggan di percakapan adalah lengan pendek, maka isi dengan `Short Sleeve`.
+        jika permintaan pelanggan di percakapan adalah lengan panjang, maka isi dengan `Long Sleeve`. 
+        isi dengan null untuk tipe produk `Topi` dan `Tote Bag`"""
+    )
+
     material: Optional[str] = Field(
-        default=None, description="""Jenis bahan yang tersedia yaitu: untuk `Kaos (Short Sleeve)` menggunakan bahan `Cotton Combed 24s`, 
-                                    tersedia juga untuk `Kaos (Short Sleeve & Long Sleeve)` dengan bahan `Cotton Combed 30s`.
-                                    Lalu untuk `Kaos Polo (Short Sleeve & Long Sleeve)` terdapat varian bahan `Polyester` atau `Lacoste Cotton Pique`.
-                                    Lalu untuk `Topi`, isi bahan/material dengan `Bahan Topi Baseball` dan untuk produk `Tote Bag` menggunakan bahan `Kanvas`"""
+        default=None, 
+        description="""Jenis bahan yang tersedia yaitu: untuk tipe produk `Kaos` menggunakan bahan `Cotton Combed 24s` dan `Cotton Combed 30s`.
+                    Lalu untuk `Kaos Polo` terdapat varian bahan `Polyester` dan `Lacoste Cotton Pique`.
+                    Lalu untuk `Topi`, isi bahan/material dengan `Bahan Topi Baseball` dan untuk produk `Tote Bag` menggunakan bahan `Kanvas`"""
     )
+
     color: Optional[str] = Field(
         default=None, 
         description="""Warna yang tersedia yaitu:
@@ -103,9 +111,11 @@ class OrderItem(BaseModel):
         Jika warna yang disepakati di percakapan mirip dengan salah satu warna-warna tersebut, maka pilihlah dari list warna tersebut yang mendekati 
         """
     )
+
     customization_type: Optional[str] = Field(
-        default=None, description="Jenis kustomisasi yang tersedia untuk semua tipe produk: `Sablon` dan `Bordir`, kecuali tipe produk `Tote Bag` hanya tersedia kustomisasi `Sablon`"
+        default=None, description="Jenis kustomisasi yang tersedia untuk semua tipe produk (Topi, Kaos, Kaos Polo): `Sablon` dan `Bordir`, kecuali tipe produk `Tote Bag` hanya tersedia kustomisasi `Sablon`. isi dengan null jika jenis kustomisasi yaitu `Sablon` atau `Bordir` tidak disebutkan di percakapan."
     )
+
     customization_notes: Optional[str] = Field(
         default=None, description="""Detail posisi Sablon atau Bordir: 
         1. jika posisi Sablon atau Bordir yang disebutkan/disepakati di percakapan adalah di depan (spesifik dada kiri/kanan) saja, maka isi key `customization_notes` dengan label `A1`
@@ -120,6 +130,7 @@ class OrderItem(BaseModel):
         Jika jenis kustomisasi tidak disebutkan atau selain 9 kondisi posisi tadi, maka isi dengan null, jangan mengarang
         """
     )
+
     size_breakdown: List[SizeItem] = Field(
         ...,
         description="Daftar rincian jumlah per ukuran yang dipesan (gunakan size `All Size` hanya untuk produk `Topi` dan `Tote Bag`)",
@@ -139,7 +150,8 @@ class ChatExtractResponse(BaseModel):
                 "deadline_requested": "2026-11-24",
                 "items": [
                     {
-                        "product_type": "Kaos Polo (Short Sleeve)",
+                        "product_type": "Kaos Polo",
+                        "sleeve_type": "Short Sleeve",
                         "material": "Cotton Combed 30s",
                         "color": "Navy Tua",
                         "customization_type": "Bordir",
@@ -152,6 +164,7 @@ class ChatExtractResponse(BaseModel):
                     },
                     {
                         "product_type": "Topi",
+                        "sleeve_type": None,
                         "material": "Bahan Topi Baseball",
                         "color": "Hitam Solid",
                         "customization_type": "Bordir",

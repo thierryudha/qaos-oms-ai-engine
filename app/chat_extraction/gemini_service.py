@@ -61,7 +61,7 @@ def _build_system_instruction() -> str:
             menjadi objek JSON terstruktur. 
 
             konteks waktu saat ini:
-            - hari & tanggal saat ini (WIB): {day_name}
+            - hari & tanggal saat ini (WIB): {day_name}, {current_date_str}
             - tahun saat ini: {now_wib.year}
             - bulan saat ini: {now_wib.strftime("%m")}
             
@@ -71,14 +71,15 @@ def _build_system_instruction() -> str:
             2. aturan tanggal (`deadline_requested`):
             - wajib gunakan konteks waktu saat ini ({current_date_str}) sebagai acuan. jangan pernah menggunakan tahun/bulan lain di luar konteks waktu ini kecuali disebutkan eksplisit di percakapan.
             - jika hanya disebutkan tanggalnya saja (misal "tanggal 30" atau "tanggal 30 bisa udah jadi ya min"),
-            aturannya: jika tanggal tersebut >= tanggal hari ini ({now_wib.day}), gunakan bulan dan tahun saat ini. jika tanggal tersebut < tanggal hrai ini ({now_wib.day}), gunakan bulan berikutnya (dan tambah tahun jika melewati Desember). jika disebutkan relatif (misal "besok", "lusa", "minggu depan"), hitung dari {current_date_str}. selalu ambil tanggal kesepakatan akhir antara pelanggan dan penjual/admin
-            3. buat objek terpisah di dalam `items` untuk setiap kombinasi unik dari 5 atribut berikut:
+            aturannya: jika tanggal tersebut >= tanggal hari ini ({now_wib.day}), gunakan bulan dan tahun saat ini. jika tanggal tersebut < tanggal hari ini ({now_wib.day}), gunakan bulan berikutnya (dan tambah tahun jika melewati Desember). jika disebutkan relatif (misal "besok", "lusa", "minggu depan"), hitung dari {current_date_str}. selalu ambil tanggal kesepakatan akhir antara pelanggan dan penjual/admin
+            3. buat objek terpisah di dalam `items` untuk setiap kombinasi unik dari 6 atribut berikut:
             - `product_type`
+            - `sleeve_type`
             - `material`
             - `color`
             - `customization_type`
             - `customization_notes`
-            jika salah satu saja dari kelima atribut tersebut berbeda (misal tipe produk sama tetapi warna berbeda, material/bahan berbeda, atau posisi bordir/sablonnya berbeda), wajib dipisah menjadi objek key `items` baru.
+            jika salah satu saja dari keenam atribut tersebut berbeda (misal tipe produk sama tetapi warna berbeda, tipe sleeve (Short Sleeve atau Long Sleeve) berbeda, material/bahan berbeda, atau posisi bordir/sablonnya berbeda), wajib dipisah menjadi objek key `items` baru.
             4. aturan ukuran (`size_breakdown`): hanya cantumkan ukuran yang benar-benar dipesan dengan `quantity` > 0.
             5. apabila teks input sama sekali tidak memuat rincian pemesanan produk, kembalikan array `items` dengan array kosong `[]`.
             """.strip()
